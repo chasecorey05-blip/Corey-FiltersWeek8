@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset = "UTF-8">
+    <title> Start Stop Fun</title>
+    </head>
+    <body>
+        <button id = "Start1">Start1</button>
+        <button id = "Start2">Start2</button>
+        <button id = "Start3">Start3</button>
+    <input id="rate" type="range" min="1" max="50" value="4"><label id="rate">rate</label>
+    <input id="cutoff" type="range" min="1" max="1000" value="80"><label id="cutoff">cutoff</label>
+
+
+         <script>
+
+const adsrSwell = function()
+{
+    mainOsc.frequency.value = Math.random() * 200 + 100;
+    mainOsc2.frequency.value = mainOsc.frequency.value * 1.02;
+    mainOsc3.frequency.value = mainOsc.frequency.value * 0.98;
+
+    mainOsc4.frequency.value = Math.random() * 100 + 50;
+    mainOsc5.frequency.value = mainOsc4.frequency.value * 1.02;
+
+    mainOsc6.frequency.value = Math.random() * 300 + 200;
+    mainOsc7.frequency.value = mainOsc6.frequency.value * 1.02;
+
+    ctx.resume();
+
+    let now = ctx.currentTime;
+
+    adsr.gain.setValueAtTime(0, now);
+    adsr.gain.linearRampToValueAtTime(1, now + 5.5);
+    adsr.gain.exponentialRampToValueAtTime(0.0001, now + 15);
+
+};
+
+// 1. Initialize the Audio Context
+const ctx = new AudioContext();
+
+// 2. Create the main audio source (e.g., a sawtooth wave)
+const mainOsc = new OscillatorNode(ctx);
+mainOsc.type = 'sawtooth';
+
+const mainOsc2 = new OscillatorNode(ctx);
+mainOsc2.type = 'sawtooth';
+
+const mainOsc3 = new OscillatorNode(ctx);
+mainOsc3.type = 'sawtooth';
+
+const mainOsc4 = new OscillatorNode(ctx);
+mainOsc4.type = 'sawtooth';
+
+const mainOsc5 = new OscillatorNode(ctx);
+mainOsc5.type = 'sawtooth';
+
+const mainOsc6 = new OscillatorNode(ctx);
+mainOsc6.type = 'sawtooth';
+
+const mainOsc7 = new OscillatorNode(ctx);
+mainOsc7.type = 'sawtooth';
+
+// 3. Create the Low-Pass Filter
+const lpFilter = new BiquadFilterNode(ctx);
+lpFilter.type = 'lowpass';
+lpFilter.frequency.value = 80; // Base cutoff frequency
+lpFilter.Q.value = 4;           // Add resonance for a more noticeable sweep
+lpFilter.gain.value = 0.5;
+
+
+// 4. Create the LFO (Low Frequency Oscillator)
+const lfo = new OscillatorNode(ctx);
+lfo.type = 'sine'; 
+lfo.frequency.value = 4; // Speed of modulation (3 Hz / 3 times per second)
+
+// 5. Create the LFO Gain Node to control modulation depth
+const lfoDepth = new GainNode(ctx);
+lfoDepth.gain.value = 500; // Modulates the cutoff by +/- 500Hz (Sweep range: 300Hz to 1300Hz)
+
+// 6. Connect the modulation graph
+lfo.connect(lfoDepth);
+lfoDepth.connect(lpFilter.frequency); // Target the filter's frequency parameter
+
+const adsr = new GainNode(ctx);
+adsr.gain.value = 0.5;
+
+const master = new GainNode(ctx);
+
+// 7. Connect the main audio signal path
+mainOsc.connect(lpFilter);
+mainOsc2.connect(lpFilter);
+mainOsc3.connect(lpFilter);
+mainOsc4.connect(lpFilter);
+mainOsc5.connect(lpFilter);
+mainOsc6.connect(lpFilter);
+mainOsc7.connect(lpFilter);
+lpFilter.connect(adsr);
+adsr.connect(master);
+master.connect(ctx.destination);
+
+// 8. Start both oscillators
+mainOsc.start();
+mainOsc2.start();
+mainOsc3.start();
+mainOsc4.start();
+mainOsc5.start();
+mainOsc6.start();
+mainOsc7.start();
+lfo.start();
+
+const button1 = document.querySelector("#Start1");
+
+button1.addEventListener("click", adsrSwell);
+
+const button2 = document.querySelector("#Start2");
+
+button2.addEventListener("click", adsrSwell);
+
+const button3 = document.querySelector("#Start3");
+
+button3.addEventListener("click", adsrSwell);
+
+const rateSlider = document.getElementById("rate");
+const cutoffSlider = document.getElementById("cutoff");
+
+rateSlider.addEventListener("input", () => {
+            ctx.resume();
+            lfo.frequency.value = rateSlider.value;
+        });
+
+cutoffSlider.addEventListener("input", () => {
+            ctx.resume();
+            lpFilter.frequency.value = cutoffSlider.value;
+        });
+ </script>
+    
+    </body>
+</html>

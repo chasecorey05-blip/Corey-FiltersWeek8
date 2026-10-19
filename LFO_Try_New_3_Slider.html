@@ -5,8 +5,8 @@
     <title> Start Stop Fun</title>
     </head>
     <body>
-<input id = "freq" type="range" min ="1" max = "40" step="0.1" value="0.1"><label id = "CutOff_Display">CutOff_Range</label>
-<input id = "rate" type="range" min ="0.125" max = "10" step="0.001" value="3"><label id = "Rate_Display">Rate_Range</label>
+<input id = "freq" type="range" min ="1" max = "60" step="0.1" value="0.1"><label id = "CutOff_Display">CutOff_Range</label>
+<input id = "rate" type="range" min ="1" max = "500" step="0.001" value="3"><label id = "Rate_Display">Rate_Range</label>
 
          <script>
 
@@ -21,13 +21,13 @@ mainOsc.frequency.value = 55;
 
 // 3. Create the Low-Pass Filter
 const lpFilter = new BiquadFilterNode(ctx);
-lpFilter.type = 'lowpass';
+lpFilter.type = 'bandpass';
 lpFilter.frequency = 800; // Base cutoff frequency
-lpFilter.Q = 10;           // Add resonance for a more noticeable sweep
+lpFilter.Q = 22;           // Add resonance for a more noticeable sweep
 
 // 4. Create the LFO (Low Frequency Oscillator)
 const lfo = new OscillatorNode(ctx);
-lfo.type = 'sine'; 
+lfo.type = 'sawtooth'; 
 //lfo.frequency.value = 1; // Speed of modulation (3 Hz / 3 times per second)
 
 // 5. Create the LFO Gain Node to control modulation depth
